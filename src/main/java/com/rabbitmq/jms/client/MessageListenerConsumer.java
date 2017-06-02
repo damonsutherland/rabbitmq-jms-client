@@ -110,9 +110,19 @@ class MessageListenerConsumer implements Consumer, Abortable {
         try {
             long dtag = envelope.getDeliveryTag();
             if (this.messageListener != null) {
-                this.messageConsumer.dealWithAcknowledgements(this.autoAck, dtag);
                 RMQMessage msg = RMQMessage.convertMessage(this.messageConsumer.getSession(), this.messageConsumer.getDestination(), response);
-                this.messageConsumer.getSession().deliverMessage(msg, this.messageListener);
+                try {
+                    this.messageConsumer.getSession().deliverMessage(msg, this.messageListener);
+                    this.messageConsumer.dealWithAcknowledgements(this.autoAck, dtag);
+                } catch (InterruptedException e) {
+                    // Nack message for some other consumer
+                    this.messageConsumer.getSession().explicitNack(dtag);
+                    e.printStackTrace();
+                    throw new IOException("Interrupted while delivering message", e);
+                } catch (Throwable e) {
+                    // Nack message for some other consumer
+                    this.messageConsumer.getSession().explicitNack(dtag);
+                }
             } else {
                 // We are unable to deliver the message, nack it
                 logger.debug("basicNack: dtag='{}' (null MessageListener)", dtag);
@@ -121,9 +131,6 @@ class MessageListenerConsumer implements Consumer, Abortable {
         } catch (JMSException x) {
             x.printStackTrace();
             throw new IOException(x);
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
-            throw new IOException("Interrupted while delivering message", ie);
         }
     }
 
