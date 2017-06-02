@@ -40,6 +40,14 @@
     <tag>v1.6.0</tag>
   </scm>
 
+  <distributionManagement>
+    <repository>
+      <id>central</id>
+      <name>artifactory-releases</name>
+      <url>http://artifactory:80/clearwater-releases</url>
+    </repository>
+  </distributionManagement>
+
   <properties>
     <rabbitmq.version>4.1.0</rabbitmq.version>
     <awaitility.version>2.0.0</awaitility.version>
