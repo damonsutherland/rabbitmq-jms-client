@@ -1375,6 +1375,7 @@ public abstract class RMQMessage implements Message, Cloneable {
         try {
             rmqMessage.setJMSCorrelationID(message.getJMSCorrelationID());
             rmqMessage.setJMSType(message.getJMSType());
+            rmqMessage.setJMSReplyTo(message.getJMSReplyTo());
             // NOTE: all other JMS header values are set when the message is sent; except for ReplyTo which is ignored on
             // a foreign message.
             copyProperties(rmqMessage, message);
